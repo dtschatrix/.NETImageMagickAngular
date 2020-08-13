@@ -1,0 +1,28 @@
+<div class = "form-center">
+<h2>
+Login is required
+</h2>
+<div class="form-field">
+  <button *ngIf='!isLoggedIn()'  (click)="signIn()"> google sign</button>
+  <br>
+  <br>
+  <mat-form-field>
+    <mat-label>E-mail</mat-label>
+    <input matInput type="text" placeholder="Login" [(ngModel)]="loginText">
+    <button mat-button *ngIf="loginText" matSuffix mat-icon-button aria-label="Clear" (click)="loginText=''">
+      <mat-icon>close</mat-icon>
+    </button>
+    </mat-form-field>
+    <br>
+    <mat-form-field>
+    <mat-label>Password</mat-label>
+    <input matInput type="password" placeholder="Placeholder" [(ngModel)]="passwordText">
+    <button mat-button *ngIf="passwordText" matSuffix mat-icon-button aria-label="Clear" (click)="passwordText=''">
+      <mat-icon>close</mat-icon>
+    </button>
+  </mat-form-field>
+  <br>
+  <button mat-raised-button color="primary">Login</button>
+
+</div>
+</div>
