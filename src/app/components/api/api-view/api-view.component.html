@@ -1,0 +1,48 @@
+<div *ngIf="files.length > 0">
+  <table class="table table-striped" appDragAndDrop (fileDropped)="onFileDropped($event)">
+    <thead>
+      <tr>
+        <th scope="col">Original Image</th>
+        <th scope="col">Filtred Image</th>
+      </tr>
+      <div>
+        <tr>
+          <td>
+            <div *ngFor="let file of files; let i = index" appDragAndDrop (fileDropped)="onFileDropped($event)">
+              <img [src]="imgURL" alt="file">
+              <div class="info">
+                <h4>
+                  {{ file?.name }}
+                </h4>
+                <p>
+                  {{ formatBytes(file?.size) }}
+                </p>
+              </div>
+            </div>
+          </td>
+          <div class="image" *ngIf="img">
+            <td>
+              <img src="{{'data:image/jpg;base64,' + img.imageBase64}}" />
+            </td>
+          </div>
+        </tr>
+        <button mat-raised-button color="primary" (click)="implode()" value="">Do magic!</button>
+        <button mat-raised-button color="primary">Primary</button>
+      </div>
+    </thead>
+  </table>
+</div>
+<div *ngIf="(claims$ | async); let filters">
+  <label for="filter">choose filter</label>
+  <select (change)="selectChangeHandler($event)" [(ngModel)] = "selectedValues" name="filter" id="filter">
+    <option *ngFor="let filter of filters.listFilters" value={{filter.name}}>{{filter.name}}</option>
+  </select>
+</div>
+<!-- <div>{{ claims$ | json }}</div> -->
+<div class="container" appDragAndDrop (fileDropped)="onFileDropped($event)">
+  <input type="file" #fileDropRef id="fileDropRef" multiple (change)="fileBrowseHandler($event.target.files)" />
+  <img src="assets/img/dnd/ic-upload-file.svg" alt="">
+  <h3>Drag and drop file here</h3>
+  <h3>or</h3>
+  <label for="fileDropRef">Browse for file</label>
+</div>

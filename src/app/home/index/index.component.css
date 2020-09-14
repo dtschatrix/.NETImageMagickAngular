@@ -1,0 +1,13 @@
+.button-row{
+  display: table-cell;
+  width: 490px;
+  flex: 1 1 auto;
+}
+.center {
+  text-align: center;
+  margin: auto;
+  width : 30%;
+}
+a {
+  margin: 20px;
+}

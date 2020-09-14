@@ -2,7 +2,7 @@
 <h2>
 Login is required
 </h2>
-<div class="form-field">
+<!-- <div class="form-field">
   <button *ngIf='!isLoggedIn()'  (click)="signIn()"> google sign</button>
   <br>
   <br>
@@ -24,5 +24,14 @@ Login is required
   <br>
   <button mat-raised-button color="primary">Login</button>
 
+</div> -->
+<div class = "col-md-8 text-center">
+  <h1 class="mt-5">{{title}}</h1>
+  <p>
+    <button class ="btn btn-lg btn-primary" (click)="login()">Login with IdentityServer</button>
+  </p>
+  <p>
+    <button class ="btn btn-lg btn-primary" (click)="logout()">logout from IdentityServer</button>
+  </p>
 </div>
 </div>
