@@ -15,8 +15,6 @@ import { AccountModule } from 'src/app/components/account/account.module';
 import { AuthService } from './core/authentication/auth.service';
 import { AppRoutingModule } from './app-routing.module';
 import { ApiModule } from './components/api/api.module';
-import { FormsModule } from '@angular/forms';
-import { SignalrService } from './components/chat/signalr.service';
 
 @NgModule({
   declarations: [
@@ -34,7 +32,6 @@ import { SignalrService } from './components/chat/signalr.service';
     AppRoutingModule,
     ShellModule,
     SharedModule,
-    FormsModule,
   ],
   providers: [
     ConfigService,

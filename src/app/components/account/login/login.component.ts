@@ -10,7 +10,6 @@ import { AuthService } from 'src/app/core/authentication/auth.service';
 
 export class LoginComponent implements OnInit {
 
-  title = 'ass';
   constructor(private authService: AuthService){ }
 
   login(): void{

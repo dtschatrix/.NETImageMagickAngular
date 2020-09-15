@@ -1,4 +1,7 @@
 export interface MessageDto {
-  user?: string,
+  username?: string,
   messageText?: string,
+  senderId?: number,
+  recevierId?: number,
+  date?: number,
 }

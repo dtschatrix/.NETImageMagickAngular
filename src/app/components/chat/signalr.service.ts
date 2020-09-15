@@ -1,57 +1,66 @@
-import { Injectable, Injector } from '@angular/core';
+import { Injectable, Injector, OnDestroy } from '@angular/core';
 import * as signalR from '@aspnet/signalr';
 import { MessageDto } from 'src/app/shared/models/message';
 import { Subject } from 'rxjs/internal/Subject';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { AuthService } from 'src/app/core/authentication/auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class SignalrService {
+export class SignalrService implements OnDestroy {
+  readonly POST_URL = 'http://localhost:6001/api/chat/send';
+  private hubConnection: signalR.HubConnection = new signalR.HubConnectionBuilder()
+    .withUrl('http://localhost:6001/chatsocket', {
+      skipNegotiation: true,
+      transport: signalR.HttpTransportType.WebSockets, // TODO: add Authorization token because of .netIdentity.context.user = null
 
-  public data: any;
-  readonly POST_URL = 'http://localhost:6001/chat/send';
-  private hubConnection: signalR.HubConnection;
+    })
+    .configureLogging(signalR.LogLevel.Information)
+    .build();
 
-
-  private receivedMessageObject: MessageDto;
+  private receivedMessageObject: MessageDto = {};
   private sharedObj = new Subject<MessageDto>();
+  private receivedListObject: any = {};
+  private listObj = new Subject<any>();
 
   constructor(private injector: Injector) {
-    this.hubConnection.keepAliveIntervalInMilliseconds = 300000;
-    this.hubConnection.serverTimeoutInMilliseconds = 150000;
-    this.hubConnection.onclose(async () => {
-      await this.startConnection();
-    });
-    this.hubConnection.on('ReceiveOne', (user, message) => { this.mapReceivedMessage(user, message); });
+    this.hubConnection.on('GetConnectionIdsList', (listIds) => this.mapReceivedIds(listIds));
+    this.hubConnection.on('BroadcastMessage', (user) => { this.mapReceivedMessage(user.username, user.messageText); });
+    this.start().then(() => console.log('Connection established'));
+  }
+  mapReceivedIds(listIds: any): void {
+    this.receivedListObject = listIds;
+    this.listObj.next(this.receivedListObject);
+  }
+  ngOnDestroy(): void {
+    this.hubConnection.stop();
   }
 
-  public startConnection = () => {
-    this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl('http://localhost:6001/chat')
-      .configureLogging(signalR.LogLevel.Information)
-      .build();
-
-    this.hubConnection
-      .start()
-      .then(() => console.log('Connection established'))
-      .catch(err => console.log('Error while connecting: ' + err));
+  public async start(): Promise<void> {
+    try {
+      await this.hubConnection.start();
+      console.log('started signalr');
+    } catch (err) {
+      console.log(err);
+      setTimeout(() => this.start(), 30000);
+    }
   }
 
   mapReceivedMessage(user: any, message: any): void {
-    this.receivedMessageObject.user = user;
+    this.receivedMessageObject.username = user;
     this.receivedMessageObject.messageText = message;
     this.sharedObj.next(this.receivedMessageObject);
   }
 
-  public broadcastMessage(token: any, msgDto: any): void {
+  public broadcastMessage(token: any, msgDto: MessageDto): void {
     const http = this.injector.get(HttpClient);
+
     const httpOptions = {
       headers: new HttpHeaders({
         ContentType: 'application/json',
         Authorization: token,
-        AccessControlAllowOrigin: '*'
       })
     };
 
@@ -59,7 +68,19 @@ export class SignalrService {
       .subscribe(data => console.log(data));
   }
 
+  getToken(): string {
+    const auth = this.injector.get(AuthService);
+    return auth.AuthorizationHeaderValue;
+  }
+
+  public sendMessage(message): void {
+    this.hubConnection.invoke('SendMessage', message);
+  }
+
   public retrieveMappedObject(): Observable<MessageDto> {
     return this.sharedObj.asObservable();
+  }
+  public retriveList(): Observable<any> {
+    return this.listObj.asObservable();
   }
 }
